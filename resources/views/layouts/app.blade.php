@@ -1,36 +1,58 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ config('app.name') }} — @yield('title', 'Blog')</title>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+</head>
+<body class="bg-[#F8F8FF] text-[#1A1A2E] font-sans">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
-
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="font-sans antialiased">
-        <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
-
-            <!-- Page Heading -->
-            @isset($header)
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endisset
-
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-50 bg-white shadow-sm border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <a href="{{ route('home') }}" class="text-xl font-bold text-[#4A4A8A]">
+                📝 Blog Simple
+            </a>
+            <div class="flex items-center gap-6">
+                <a href="{{ route('home') }}" class="text-sm text-gray-600 hover:text-[#4A4A8A]">Accueil</a>
+                <form method="GET" action="{{ route('home') }}" class="flex items-center">
+                    <input type="text" name="search" value="{{ request('search') }}"
+                        placeholder="Rechercher..."
+                        class="text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-[#4A4A8A]">
+                </form>
+                @auth
+                    <span class="text-sm text-gray-600">{{ auth()->user()->name }}</span>
+                    @if(auth()->user()->isAdmin())
+                        <a href="{{ route('admin.dashboard') }}" class="text-sm text-[#6C63FF] font-medium hover:underline">Admin</a>
+                    @endif
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button class="text-sm text-red-500 hover:underline">Déconnexion</button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" class="text-sm bg-[#4A4A8A] text-white px-4 py-1.5 rounded-lg hover:bg-[#6C63FF] transition">
+                        Connexion
+                    </a>
+                @endauth
+            </div>
         </div>
-    </body>
+    </nav>
+
+    <!-- Contenu -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        @if(session('success'))
+            <div class="mb-4 bg-green-100 text-green-800 px-4 py-3 rounded-xl text-sm">
+                {{ session('success') }}
+            </div>
+        @endif
+        @yield('content')
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-16 border-t border-gray-100 py-6 text-center text-sm text-gray-400">
+        © {{ date('Y') }} Blog Simple — Tous droits réservés
+    </footer>
+
+</body>
 </html>
